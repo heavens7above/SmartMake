@@ -12,7 +12,10 @@ RUN pip install --no-cache-dir -r requirements.txt
 RUN playwright install chromium
 
 # Copy application code
-COPY backend/ backend/
+COPY . .
+
+# Set Python path
+ENV PYTHONPATH=/app
 
 # Use unbuffered output for logs
 ENV PYTHONUNBUFFERED=1

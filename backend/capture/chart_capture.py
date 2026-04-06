@@ -1,13 +1,16 @@
 from playwright.sync_api import sync_playwright
 import time
 import os
+import urllib.parse
 from ..utils.logger import logger
 
 def capture_chart(symbol: str, interval: str = "4h", save_path: str = "custom_path.png"):
     """
     Captures a screenshot of the chart for the given symbol.
     """
-    url = f"https://in.tradingview.com/chart/?symbol={symbol}&interval={interval}"
+    safe_symbol = urllib.parse.quote(symbol)
+    safe_interval = urllib.parse.quote(interval)
+    url = f"https://in.tradingview.com/chart/?symbol={safe_symbol}&interval={safe_interval}"
     
     with sync_playwright() as p:
         browser = p.chromium.launch(

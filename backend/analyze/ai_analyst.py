@@ -28,7 +28,7 @@ class AIAnalyst:
         }
 
         # metadata string for context
-        meta_str = ", ".join([f"{k}: {v}" for k, v in metadata.items()])
+        meta_str = ", ".join(f"{k}: {v}" for k, v in metadata.items())
 
         system_prompt = """You are a professional trading system. You analyze chart screenshots and market data to generate trading signals.
         You MUST output strict JSON only. No markdown, no conversational text.

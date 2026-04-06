@@ -1,5 +1,4 @@
 from playwright.sync_api import sync_playwright
-import time
 import os
 from ..utils.logger import logger
 
@@ -28,7 +27,7 @@ def capture_chart(symbol: str, interval: str = "4h", save_path: str = "custom_pa
             # General wait for body or specific element
             page.wait_for_selector(".chart-container", timeout=10000) 
             # Allow some time for indicators to render
-            time.sleep(5) 
+            page.wait_for_load_state("networkidle")
             
             # Hide widgets or popups if any (optional, might need specific selectors)
             

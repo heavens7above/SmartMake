@@ -4,6 +4,7 @@ from ..db.models import Trade
 from ..analyze.schemas import TradeSignal
 from ..utils.logger import logger
 import random # Mock price data
+import requests
 
 import time
 
@@ -12,8 +13,35 @@ class PaperTrader:
         pass
 
     def get_current_price(self, symbol: str) -> float:
-        # Mock price fetcher - replace with real API (e.g. Yahoo Finance, Kite) later
-        # For NIFTY, roughly 21000-22000
+        # Map symbol to Yahoo Finance ticker format
+        mapped_ticker = symbol
+        if symbol.startswith('NSE:'):
+            base = symbol.split(':')[1]
+            if base == 'NIFTY':
+                mapped_ticker = '^NSEI'
+            elif base == 'BANKNIFTY':
+                mapped_ticker = '^NSEBANK'
+            else:
+                mapped_ticker = base + '.NS'
+
+        tickers = [mapped_ticker]
+
+        for ticker in tickers:
+            url = f'https://query1.finance.yahoo.com/v8/finance/chart/{ticker}'
+            headers = {'User-Agent': 'Mozilla/5.0'}
+            try:
+                res = requests.get(url, headers=headers, timeout=5)
+                res.raise_for_status()
+                data = res.json()
+                if data.get('chart', {}).get('result'):
+                    price = data['chart']['result'][0]['meta']['regularMarketPrice']
+                    logger.info(f"Fetched real price for {symbol} ({ticker}): {price}")
+                    return round(float(price), 2)
+            except Exception as e:
+                logger.warning(f"Failed to fetch price for {ticker}: {e}")
+
+        # Fallback to mock price if all attempts fail
+        logger.warning(f"Using mock price fallback for {symbol}")
         return round(random.uniform(21500, 22000), 2)
 
     def execute_trade(self, run_id: str, symbol: str, signal: TradeSignal, screenshot_path: str, raw_response: dict, analysis_latency: int):

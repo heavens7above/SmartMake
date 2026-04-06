@@ -1,2 +1,5 @@
 backend/main.py
 backend/scheduler.py
+__pycache__/
+*.pyc
+*.pyo

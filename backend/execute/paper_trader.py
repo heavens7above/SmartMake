@@ -3,7 +3,7 @@ from ..db.database import get_db
 from ..db.models import Trade
 from ..analyze.schemas import TradeSignal
 from ..utils.logger import logger
-import random # Mock price data
+import yfinance as yf
 
 import time
 
@@ -12,9 +12,20 @@ class PaperTrader:
         pass
 
     def get_current_price(self, symbol: str) -> float:
-        # Mock price fetcher - replace with real API (e.g. Yahoo Finance, Kite) later
-        # For NIFTY, roughly 21000-22000
-        return round(random.uniform(21500, 22000), 2)
+        # Fetch real price using yfinance
+        try:
+            # Map NIFTY to Yahoo Finance ticker
+            yf_symbol = '^NSEI' if symbol.upper() == 'NIFTY' else symbol
+            ticker = yf.Ticker(yf_symbol)
+            hist = ticker.history(period='1d')
+            if not hist.empty:
+                return round(float(hist['Close'].iloc[-1]), 2)
+            else:
+                logger.error(f"yfinance returned empty history for {symbol}")
+                return 0.0
+        except Exception as e:
+            logger.error(f"Failed to fetch price for {symbol}: {e}")
+            return 0.0
 
     def execute_trade(self, run_id: str, symbol: str, signal: TradeSignal, screenshot_path: str, raw_response: dict, analysis_latency: int):
         start_time = time.time()

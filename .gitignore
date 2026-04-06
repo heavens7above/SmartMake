@@ -1,2 +1,4 @@
 backend/main.py
 backend/scheduler.py
+__pycache__/
+*.py[cod]
